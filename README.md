@@ -1,6 +1,6 @@
 # Install
 
-pip install -e git+ssh://git@github.com:SkAZi/tinypackager.git#egg=tinypackager
+pip install -e git+ssh://git@github.com/SkAZi/tinypackager.git#egg=tinypackager
 
 
 # Config
@@ -56,5 +56,5 @@ tinypackager create [package.yaml ...] --bucket=ZZZ --access_key XXX --secret_ke
 ### Install package:
 
 ```
-tinypackager update --bucket=ZZZ --access_key XXX --secret_key YYY
+tinypackager update screen=hd --bucket=ZZZ --access_key XXX --secret_key YYY
 ```
