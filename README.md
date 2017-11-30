@@ -1,6 +1,6 @@
 # Install
 
-pip install -e git+ssh://#egg=tinypackager
+pip install -e git+ssh://git@github.com:SkAZi/tinypackager.git#egg=tinypackager
 
 
 # Config
