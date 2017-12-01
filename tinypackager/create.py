@@ -70,7 +70,7 @@ class PackageCreate:
     def collect(self, package):
         pwd = os.getcwd()
         temp_dir = tempfile.mkdtemp()
-        shutil.copy(package, temp_dir)
+        shutil.copy(package, os.path.join(temp_dir, 'package.yml'))
         log = open(os.path.join(temp_dir, 'files.yml'), 'w')
 
         print "\nCollecting..."
