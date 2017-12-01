@@ -42,16 +42,33 @@ def prepare_pattern(pattern):
     return '^%s$' % pattern
 
 
-def glob_find(pattern):
+def glob_find(pattern, exclude=[]):
     ret = []
+
     path_pattern, file_pattern = os.path.split(pattern)
     if path_pattern.startswith('.'): path_pattern = path_pattern[1:]
     path_pattern = re.compile(prepare_pattern(path_pattern))
     file_pattern = re.compile(prepare_pattern(file_pattern))
+
+    exclude_patterns = []
+    for ex in exclude:
+        epath_pattern, efile_pattern = os.path.split(ex)
+        if epath_pattern.startswith('.'): epath_pattern = epath_pattern[1:]
+        exclude_patterns.append((
+            re.compile(prepare_pattern(epath_pattern)), 
+            re.compile(prepare_pattern(efile_pattern))
+        ))
+
     for folder, _dirs, files in os.walk('.'):
         for filename in files:
             if path_pattern.match(folder[2:]) and file_pattern.match(filename):
-                ret.append(os.path.join(folder[2:], filename))
+                excluded = False
+                for epath_pattern, efile_pattern in exclude_patterns:
+                    if epath_pattern.match(folder[2:]) and efile_pattern.match(filename):
+                        excluded = True
+                        break
+                if not excluded:
+                    ret.append(os.path.join(folder[2:], filename))
 
     return ret
 
@@ -67,6 +84,21 @@ def find_root(root_file):
     root = os.getcwd()
     os.chdir(pwd)
     return root
+
+
+def split_name_flag(section):
+    splitted = section.split(" ", 1)
+
+    if len(splitted) > 1:
+        flags = []
+        for s in splitted[1].split(" "):
+            s = s.strip(' ')
+            if s: flags.append(s)
+        return (splitted[0].strip(' '), ' '.join(flags))
+
+    else:
+        return (splitted[0].strip(' '), '')
+
 
 
 def safe_mkdir(path):

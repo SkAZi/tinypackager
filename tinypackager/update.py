@@ -1,5 +1,6 @@
 import boto, yaml, tempfile, os, sys, shutil, tarfile, glob, re
-from utils import YamlException, read_yaml, safe_mkdir, glob_find, validate_version, find_root
+from utils import YamlException, read_yaml, safe_mkdir, glob_find, \
+    validate_version, find_root, split_name_flag
 
 
 class PackageUpdate:
@@ -150,13 +151,11 @@ class PackageUpdate:
 
         for section, files in files_to_install.iteritems():
 
-            split_section = section.split(" ")
-            base_section = split_section[0]
+            base_section, split_section = split_name_flag(section)
             section_flags = {}
-            if len(split_section) > 1:
-                for flag in split_section[1:]:
-                    key, value = flag.split('=')
-                    section_flags[str(key)] = str(value)   
+            for flag in split_section:
+                key, value = flag.split('=')
+                section_flags[str(key)] = str(value)   
 
             situated = True
             for key in section_flags:

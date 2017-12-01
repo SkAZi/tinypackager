@@ -4,7 +4,7 @@ from update import PackageUpdate
 from freeze import PackageFreeze
 from utils import read_yaml_exit
 
-__version__ = '0.3.2'
+__version__ = '0.3.4'
 
 def show_version():
     print "tinypackager v.%s" % __version__
@@ -28,7 +28,7 @@ def create(packages, root, bucket, access_key, secret_key, bump_version, file):
     if file:
         ret = []
         for package in packages:
-            ret.extend(read_yaml_exit(package))
+            ret.extend(read_yaml_exit(package).get('create', []))
         packages = ret
     
     if len(packages) == 0: packages = ('package.yml',)

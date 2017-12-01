@@ -1,6 +1,6 @@
 import boto, yaml, tempfile, os, sys, shutil, tarfile
 from utils import YamlException, glob_find, validate_version, find_root, \
-    read_yaml_exit, chdir_exit, safe_mkdir
+    read_yaml_exit, chdir_exit, safe_mkdir, split_name_flag
 
 class PackageCreate:
     def __init__(self, root, package, bucket=None, access_key=None, secret_key=None, bump_version=False, dest_path="."):
@@ -76,13 +76,11 @@ class PackageCreate:
         print "\nCollecting..."
         roots = self.options.get('root', {})
         for proto_section, data in self.options.get('data', []).iteritems():
-            base_section = proto_section.split(" ", 2)[0]
+            base_section = split_name_flag(proto_section)[0]
 
             root_keys = []
             for root_key, root_value in roots.iteritems():
-                base_root_key  = root_key.split(' ', 2)
-                root_options = base_root_key[1] if len(base_root_key) > 1 else ""
-                base_root_key = base_root_key[0]
+                base_root_key, root_options = split_name_flag(root_key)
                 if base_root_key == base_section:
                     root_keys.append((root_key, root_options, root_value))
 
@@ -101,13 +99,19 @@ class PackageCreate:
                 log.write("%s:\n" % section)
 
                 if isinstance(data, basestring): data = [data]
+
+                exclude_patterns = []
                 for data_item in data:
+                    if data_item.startswith('^'):
+                        exclude_patterns.append(data_item[1:])
+                        continue
+
                     print "    patern %s" % data_item
 
                     if base_path.startswith('/') and self.root is not None:
                         chdir_exit(os.path.join(self.root, base_path[1:]), 
                             "Error: wrong root for section '%s' %s" % (section, os.path.join(self.root, base_path[1:])))
-                        file_list = glob_find(data_item)
+                        file_list = glob_find(data_item, exclude_patterns)
 
                     else:
                         if base_path.startswith('/'):
@@ -116,7 +120,7 @@ class PackageCreate:
                         chdir_exit(base_path, 
                             "Error: wrong root for section '%s' %s" % (section, base_path))
 
-                        file_list = glob_find(data_item)
+                        file_list = glob_find(data_item, exclude_patterns)
 
                     if len(file_list) == 0:
                         print "    Warning: Nothing found on %s" % data_item
