@@ -14,8 +14,7 @@ class PackageCreate:
                 self.bucket = conn.get_bucket(bucket)
 
                 if self.check():
-                    print "Warning: package %s already exists" % self.name(splitter="/")
-                    exit(0)
+                    print "Info: package %s already exists" % self.name(splitter="/")
 
                 else:
                     print "\nUploading enabled, processing..."
