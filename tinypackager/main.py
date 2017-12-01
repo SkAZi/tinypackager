@@ -4,7 +4,10 @@ from update import PackageUpdate
 from freeze import PackageFreeze
 from utils import read_yaml_exit
 
-__version__ = '0.3.14'
+# TODO: remove folders if empty
+# TODO: local packages storage
+
+__version__ = '0.3.17'
 
 def show_version():
     print "tinypackager v.%s" % __version__

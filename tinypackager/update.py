@@ -150,32 +150,31 @@ class PackageUpdate:
             val = val % package_yaml
             destinations[key % package_yaml] = val[1:] if val.startswith('/') else val
 
-        print "Project", destinations
-
         for section, files in files_to_install.iteritems():
             print "Section", section
 
             base_section, split_section = split_name_flag(section)
             section_flags = {}
-            for flag in split_section:
-                key, value = flag.split('=')
-                section_flags[str(key)] = str(value)   
+            if split_section:
+                for flag in split_section.split(' '):
+                    key, value = flag.split('=')
+                    section_flags[str(key)] = str(value)   
 
             situated = True
             for key in section_flags:
-                if self.flags[key] != section_flags[key]:
+                if self.flags.get(key) != section_flags[key]:
                     print "  Not situated flags for section %s" % section
                     situated = False
                     break
 
             if not situated or not destinations.get(base_section):
-                break
+                continue
 
             path_to_install = os.path.join(pwd, destinations.get(base_section))
             safe_mkdir(path_to_install)
             os.chdir(path_to_install)
             for file in files:
-                print '  Copying %s' % os.path.join(path_to_install, file)
+                print '  Copying %s' % os.path.abspath(os.path.join(path_to_install, file))
                 folder, filename = os.path.split(file)
                 if folder: safe_mkdir(folder)
                 shutil.copyfile(os.path.join(unpacked_path, section, file), file)
