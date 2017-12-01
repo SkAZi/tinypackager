@@ -1,13 +1,14 @@
-import click, yaml, os
+import click, os
+import yaml as yaml_lib
 from create import PackageCreate
 from update import PackageUpdate
 from freeze import PackageFreeze
-from utils import read_yaml_exit
+from utils import read_yaml_exit, deepmerge
 
 # TODO: remove folders if empty
 # TODO: local packages storage
 
-__version__ = '0.3.19'
+__version__ = '0.3.21'
 
 def show_version():
     print "tinypackager v.%s" % __version__
@@ -85,6 +86,19 @@ def freeze(root):
     os.chdir(folder)
     PackageFreeze(file)
     os.chdir(pwd)
+
+
+@cli.command()
+@click.argument('yamls', nargs=-1)
+def yaml(yamls):
+    if len(yamls) == 0: exit(1)
+
+    data = read_yaml_exit(yamls[0])
+    for fyaml in yamls[1:]:
+        append = read_yaml_exit(fyaml)
+        data = deepmerge(data, append)
+
+    print yaml_lib.dump(data, default_flow_style=False, allow_unicode=True)
 
 
 if __name__ == '__main__':

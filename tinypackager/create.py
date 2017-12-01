@@ -39,7 +39,7 @@ class PackageCreate:
             majv, minv = validate_version(unicode(self.options.get('version', '0.0')))
             self.options['version'] = "%s.%s" % (majv, minv + 1)
             with open(package, 'w') as f:
-                yaml.dump(self.options, f, default_flow_style=False)
+                yaml.dump(self.options, f, default_flow_style=False, allow_unicode=True)
         else:
             majv, minv = validate_version(unicode(self.options.get('version', '0.0')))
             self.options['version'] = "%s.%s" % (majv, minv)

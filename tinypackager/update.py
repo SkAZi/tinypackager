@@ -183,7 +183,7 @@ class PackageUpdate:
 
         shutil.copyfile(os.path.join(unpacked_path, 'files.yml'), '.tinylima/%s/%s/files.yml' % (self.root, basic_name))
         with open('.tinylima/%s/%s/package.yml' % (self.root, basic_name), 'w') as f:
-            yaml.dump(package_yaml, f, default_flow_style=False)
+            yaml.dump(package_yaml, f, default_flow_style=False, allow_unicode=True)
 
         install_log.close()   
 
