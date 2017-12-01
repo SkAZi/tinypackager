@@ -47,6 +47,8 @@ def glob_find(pattern, exclude=[]):
 
     path_pattern, file_pattern = os.path.split(pattern)
     if path_pattern.startswith('.'): path_pattern = path_pattern[1:]
+    if path_pattern.startswith('/'): path_pattern = path_pattern[1:]
+
     path_pattern = re.compile(prepare_pattern(path_pattern))
     file_pattern = re.compile(prepare_pattern(file_pattern))
 
@@ -54,6 +56,7 @@ def glob_find(pattern, exclude=[]):
     for ex in exclude:
         epath_pattern, efile_pattern = os.path.split(ex)
         if epath_pattern.startswith('.'): epath_pattern = epath_pattern[1:]
+        if epath_pattern.startswith('/'): epath_pattern = epath_pattern[1:]
         exclude_patterns.append((
             re.compile(prepare_pattern(epath_pattern)), 
             re.compile(prepare_pattern(efile_pattern))

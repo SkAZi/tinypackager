@@ -4,7 +4,7 @@ from update import PackageUpdate
 from freeze import PackageFreeze
 from utils import read_yaml_exit
 
-__version__ = '0.3.4'
+__version__ = '0.3.6'
 
 def show_version():
     print "tinypackager v.%s" % __version__
@@ -18,8 +18,8 @@ def cli():
 @click.argument('packages', nargs=-1)
 @click.option('--root', '-r', default="root.yml", help='Root file name.')
 @click.option('--bucket', envvar='TINYLIMA_BUCKET', default="tinylima-assets", help='AWS bucket name.')
-@click.option('--access_key', envvar='ACCESS_KEY', default=None, help='Access key.')
-@click.option('--secret_key', envvar='SECRET_KEY', default=None, help='Secret key.')
+@click.option('--access_key', envvar='S3_ACCESS_KEY', default=None, help='Access key.')
+@click.option('--secret_key', envvar='S3_SECRET_KEY', default=None, help='Secret key.')
 @click.option('--bump_version', '-b', is_flag=True, help='Auto increment version number.')
 @click.option('--file', '-f',  is_flag=True, help='Read list of packages from file.')
 def create(packages, root, bucket, access_key, secret_key, bump_version, file):
@@ -44,8 +44,8 @@ def create(packages, root, bucket, access_key, secret_key, bump_version, file):
 @click.argument('flags', nargs=-1)
 @click.option('--root', '-r', default="root.yml", help='Root file name.')
 @click.option('--bucket', envvar='TINYLIMA_BUCKET', default="tinylima-assets", help='AWS bucket name.')
-@click.option('--access_key', envvar='ACCESS_KEY', default=None, help='Access key.')
-@click.option('--secret_key', envvar='SECRET_KEY', default=None, help='Secret key.')
+@click.option('--access_key', envvar='S3_ACCESS_KEY', default=None, help='Access key.')
+@click.option('--secret_key', envvar='S3_SECRET_KEY', default=None, help='Secret key.')
 def update(flags, root, bucket, access_key, secret_key):
     show_version()
     args = {}

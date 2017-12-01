@@ -123,7 +123,9 @@ class PackageCreate:
                         file_list = glob_find(data_item, exclude_patterns)
 
                     if len(file_list) == 0:
-                        print "    Warning: Nothing found on %s" % data_item
+                        print os.getcwd()
+                        print "    Error: Nothing found on %s" % data_item
+                        exit(1)
 
                     for filename in file_list:
                         print "      file %s" % filename
