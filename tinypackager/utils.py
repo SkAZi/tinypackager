@@ -68,8 +68,24 @@ def find_root(root_file):
     os.chdir(pwd)
     return root
 
-def mkdirsafe(path):
+
+def safe_mkdir(path):
     try:
         os.makedirs(path)
     except OSError:
         pass
+
+def read_yaml_exit(name, message="Error: no message"):
+    try:
+        return read_yaml(name)
+    except YamlException:
+        print message
+        exit(1)
+
+def chdir_exit(path, message="Error: no message"):
+    try:
+        os.chdir(path)
+    except OSError:
+        print message
+        exit(1)
+

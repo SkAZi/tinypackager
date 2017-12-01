@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
 from setuptools import setup
+from tinypackager.main import __version__
 
 setup(
     name='tinypackager',
-    version='0.3.1',
+    version=__version__,
     packages=['tinypackager'],
     include_package_data=True,
     install_requires=[

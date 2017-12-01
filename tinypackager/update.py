@@ -1,5 +1,5 @@
 import boto, yaml, tempfile, os, sys, shutil, tarfile, glob, re
-from utils import YamlException, read_yaml, mkdirsafe, glob_find, validate_version, find_root
+from utils import YamlException, read_yaml, safe_mkdir, glob_find, validate_version, find_root
 
 
 class PackageUpdate:
@@ -136,7 +136,7 @@ class PackageUpdate:
         pwd = os.getcwd()
         basic_name = '%s-%s' % (project, name)
         self.remove(basic_name)
-        mkdirsafe('.tinylima/%s/%s' % (self.root, basic_name))
+        safe_mkdir('.tinylima/%s/%s' % (self.root, basic_name))
 
         install_log = open('.tinylima/%s/%s/installed.yml' % (self.root, basic_name), 'w')
 
@@ -171,12 +171,12 @@ class PackageUpdate:
                 situated = False
 
             if situated:
-                mkdirsafe(path_to_install)
+                safe_mkdir(path_to_install)
                 os.chdir(path_to_install)
                 for file in files:
                     print '  Copying %s' % os.path.join(path_to_install, file)
                     folder, filename = os.path.split(file)
-                    if folder: mkdirsafe(folder)
+                    if folder: safe_mkdir(folder)
                     shutil.copyfile(os.path.join(unpacked_path, section, file), file)
                     install_log.write("- '%s'\n" % os.path.join(path_to_install, file))
                 os.chdir(pwd)

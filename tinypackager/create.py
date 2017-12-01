@@ -1,8 +1,9 @@
 import boto, yaml, tempfile, os, sys, shutil, tarfile
-from utils import YamlException, read_yaml, mkdirsafe, glob_find, validate_version, find_root
+from utils import YamlException, glob_find, validate_version, find_root, \
+    read_yaml_exit, chdir_exit, safe_mkdir
 
 class PackageCreate:
-    def __init__(self, root, package, bucket=None, access_key=None, secret_key=None, bump_version=False):
+    def __init__(self, root, package, bucket=None, access_key=None, secret_key=None, bump_version=False, dest_path="."):
         if self.load(root, package, bump_version):
             if access_key is not None and secret_key is not None:
                 conn = boto.connect_s3(
@@ -26,15 +27,14 @@ class PackageCreate:
             else:
                 print "\nUploading disabled, processing..."
                 temp_dir = self.collect(package)
-                print "\nArchive: %s" % self.pack(temp_dir)
+                result = self.pack(temp_dir)
+                shutil.copy(result, dest_path)
+                self.cleanup(temp_dir)
+                print "\nArchive: %s.tbz2" % self.name()
 
 
     def load(self, root, package, bump_version):
-        try:
-            self.options = read_yaml(package)
-        except YamlException:
-            print "Error: no %s file found!" % package
-            exit(1)
+        self.options = read_yaml_exit(package, "Error: no %s file found!" % package)
 
         if bump_version:
             majv, minv = validate_version(unicode(self.options.get('version', '0.0')))
@@ -48,7 +48,7 @@ class PackageCreate:
         self.root = find_root(root)
         if self.root is not None:
             self.options['rootfile'] = self.root
-            root_options = read_yaml(os.path.join(self.root, root))
+            root_options = read_yaml_exit(os.path.join(self.root, root))
             root_options.update(self.options)
             self.options = root_options
 
@@ -74,41 +74,62 @@ class PackageCreate:
         log = open(os.path.join(temp_dir, 'files.yml'), 'w')
 
         print "\nCollecting..."
-        for section, data in self.options.get('data', []).iteritems():
-            print "  section %s" % section
-            log.write("%s:\n" % section)
+        roots = self.options.get('root', {})
+        for proto_section, data in self.options.get('data', []).iteritems():
+            base_section = proto_section.split(" ", 2)[0]
 
-            section_dir_name = os.path.join(temp_dir, section)
-            base_section = section.split(" ", 2)[0]
-            base_path = self.options.get('root', {}).get(base_section, './')
+            root_keys = []
+            for root_key, root_value in roots.iteritems():
+                base_root_key  = root_key.split(' ', 2)
+                root_options = base_root_key[1] if len(base_root_key) > 1 else ""
+                base_root_key = base_root_key[0]
+                if base_root_key == base_section:
+                    root_keys.append((root_key, root_options, root_value))
 
-            for data_item in data:
-                print "    patern %s" % data_item
+            sections = [(proto_section, './')] if len(root_keys) == 0 else []
 
-                if base_path.startswith('/') and self.root is not None:
-                    os.chdir(os.path.join(self.root, base_path[1:]))
-                    file_list = glob_find(data_item)
+            for root_key, root_options, root_value in root_keys:
+                sections.append(("%s %s" % (proto_section, root_options), root_value))
 
-                else:
-                    if base_path.startswith('/'):
-                        print "    Warning: Root not found, processing relative"
-                    os.chdir(base_path)
-                    file_list = glob_find(data_item)
 
-                if len(file_list) == 0:
-                    print "    Warning: Nothing found on %s" % data_item
+            for section, base_path in sections:
+                section_dir_name = os.path.join(temp_dir, section)
+                print "  section %s" % section
+                log.write("%s:\n" % section)
 
-                for filename in file_list:
-                    src_dir, src_file = os.path.split(filename)
-                    dest_path = os.path.join(section_dir_name, src_dir)
-                    mkdirsafe(dest_path)
+                if isinstance(data, basestring): data = [data]
+                for data_item in data:
+                    print "    patern %s" % data_item
 
-                    print "      file %s" % filename
-                    log.write("  - '%s'\n" % filename)
-                    if os.path.isfile(filename):
-                        shutil.copy(filename, dest_path)
+                    if base_path.startswith('/') and self.root is not None:
+                        chdir_exit(os.path.join(self.root, base_path[1:]), 
+                            "Error: wrong root for section '%s' %s" % (section, os.path.join(self.root, base_path[1:])))
+                        file_list = glob_find(data_item)
 
-                os.chdir(pwd)
+                    else:
+                        if base_path.startswith('/'):
+                            print "    Warning: Root not found, processing relative"
+
+                        chdir_exit(base_path, 
+                            "Error: wrong root for section '%s' %s" % (section, base_path))
+
+                        file_list = glob_find(data_item)
+
+                    if len(file_list) == 0:
+                        print "    Warning: Nothing found on %s" % data_item
+
+                    for filename in file_list:
+                        print "      file %s" % filename
+
+                        src_dir, src_file = os.path.split(filename)
+                        dest_path = os.path.join(section_dir_name, src_dir)
+                        safe_mkdir(dest_path)
+
+                        log.write("  - '%s'\n" % filename)
+                        if os.path.isfile(filename):
+                            shutil.copy(filename, dest_path)
+
+                    os.chdir(pwd)
 
         log.close()
         print "Done."
