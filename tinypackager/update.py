@@ -147,9 +147,13 @@ class PackageUpdate:
 
         destinations = {}
         for key, val in (self.data.get('destination') or {}).iteritems():
-            destinations[key % package_yaml] = val % package_yaml
+            val = val % package_yaml
+            destinations[key % package_yaml] = val[1:] if val.startswith('/') else val
+
+        print "Project", destinations
 
         for section, files in files_to_install.iteritems():
+            print "Section", section
 
             base_section, split_section = split_name_flag(section)
             section_flags = {}
@@ -164,21 +168,19 @@ class PackageUpdate:
                     situated = False
                     break
 
-            path_to_install = destinations.get(base_section)
+            if not situated or not destinations.get(base_section):
+                break
 
-            if not path_to_install:
-                situated = False
-
-            if situated:
-                safe_mkdir(path_to_install)
-                os.chdir(path_to_install)
-                for file in files:
-                    print '  Copying %s' % os.path.join(path_to_install, file)
-                    folder, filename = os.path.split(file)
-                    if folder: safe_mkdir(folder)
-                    shutil.copyfile(os.path.join(unpacked_path, section, file), file)
-                    install_log.write("- '%s'\n" % os.path.join(path_to_install, file))
-                os.chdir(pwd)
+            path_to_install = os.path.join(pwd, destinations.get(base_section))
+            safe_mkdir(path_to_install)
+            os.chdir(path_to_install)
+            for file in files:
+                print '  Copying %s' % os.path.join(path_to_install, file)
+                folder, filename = os.path.split(file)
+                if folder: safe_mkdir(folder)
+                shutil.copyfile(os.path.join(unpacked_path, section, file), file)
+                install_log.write("- '%s'\n" % os.path.join(path_to_install, file))
+            os.chdir(pwd)
 
         shutil.copyfile(os.path.join(unpacked_path, 'files.yml'), '.tinylima/%s/%s/files.yml' % (self.root, basic_name))
         with open('.tinylima/%s/%s/package.yml' % (self.root, basic_name), 'w') as f:

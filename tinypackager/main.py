@@ -4,7 +4,7 @@ from update import PackageUpdate
 from freeze import PackageFreeze
 from utils import read_yaml_exit
 
-__version__ = '0.3.11'
+__version__ = '0.3.14'
 
 def show_version():
     print "tinypackager v.%s" % __version__
@@ -67,13 +67,21 @@ def update(flags, root, bucket, access_key, secret_key):
         except:
             print "Warning: flag %s can not be parsed" % s
 
-    PackageUpdate(root, args, bucket, access_key, secret_key)
+    folder, file = os.path.split(root)
+    pwd = os.getcwd()
+    os.chdir(folder)
+    PackageUpdate(file, args, bucket, access_key, secret_key)
+    os.chdir(pwd)
 
 @cli.command()
 @click.option('--root', '-r', default="root.yml", help='Root file name.')
 def freeze(root):
     show_version()
-    PackageFreeze(root)
+    folder, file = os.path.split(root)
+    pwd = os.getcwd()
+    os.chdir(folder)
+    PackageFreeze(file)
+    os.chdir(pwd)
 
 
 if __name__ == '__main__':
