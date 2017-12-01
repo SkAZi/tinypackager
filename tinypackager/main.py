@@ -4,7 +4,7 @@ from update import PackageUpdate
 from freeze import PackageFreeze
 from utils import read_yaml_exit
 
-__version__ = '0.3.8'
+__version__ = '0.3.9'
 
 def show_version():
     print "tinypackager v.%s" % __version__
@@ -44,7 +44,7 @@ def create(packages, root, bucket, access_key, secret_key, bump_version, file):
                 folder, file = os.path.split(package)
                 os.chdir(folder)
                 PackageCreate(root, file, bucket=bucket, access_key=access_key, 
-                    secret_key=secret_key, bump_version=bump_version, dest_path=pwd)
+                    secret_key=secret_key, bump_version=bump_version, dest_path=backpwd)
                 os.chdir(pwd)
     
 
