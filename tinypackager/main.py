@@ -4,7 +4,7 @@ from update import PackageUpdate
 from freeze import PackageFreeze
 from utils import read_yaml_exit
 
-__version__ = '0.3.6'
+__version__ = '0.3.7'
 
 def show_version():
     print "tinypackager v.%s" % __version__
@@ -24,21 +24,31 @@ def cli():
 @click.option('--file', '-f',  is_flag=True, help='Read list of packages from file.')
 def create(packages, root, bucket, access_key, secret_key, bump_version, file):
     show_version()
-    pwd = os.getcwd()
-    if file:
-        ret = []
-        for package in packages:
-            ret.extend(read_yaml_exit(package).get('create', []))
-        packages = ret
-    
-    if len(packages) == 0: packages = ('package.yml',)
+    backpwd = os.getcwd()
 
-    for package in packages:
-        folder, file = os.path.split(package)
-        os.chdir(folder)
-        PackageCreate(root, file, bucket=bucket, access_key=access_key, 
-            secret_key=secret_key, bump_version=bump_version, dest_path=pwd)
-        os.chdir(pwd)
+    if not file:
+        pwd = os.getcwd()
+        if len(packages) == 0: packages = ('package.yml',)
+        for package in packages:
+            folder, file = os.path.split(package)
+            os.chdir(folder)
+            PackageCreate(root, file, bucket=bucket, access_key=access_key, 
+                secret_key=secret_key, bump_version=bump_version, dest_path=pwd)
+            os.chdir(pwd)
+
+    else:
+        for package_list in packages:
+            folder, file = os.path.split(package_list)
+            os.chdir(folder)
+            for package in read_yaml_exit(file).get('create', []):
+                folder, file = os.path.split(package)
+                os.chdir(folder)
+                PackageCreate(root, file, bucket=bucket, access_key=access_key, 
+                    secret_key=secret_key, bump_version=bump_version, dest_path=pwd)
+                os.chdir(pwd)
+    
+
+    os.chdir(backpwd)
 
 @cli.command()
 @click.argument('flags', nargs=-1)
