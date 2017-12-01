@@ -71,7 +71,7 @@ class PackageCreate:
         pwd = os.getcwd()
         temp_dir = tempfile.mkdtemp()
         shutil.copy(package, temp_dir)
-        log = open(os.path.join(temp_dir, 'files.yaml'), 'w')
+        log = open(os.path.join(temp_dir, 'files.yml'), 'w')
 
         print "\nCollecting..."
         for section, data in self.options.get('data', []).iteritems():

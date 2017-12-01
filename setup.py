@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name='tinypackager',
-    version='0.3',
+    version='0.3.1',
     packages=['tinypackager'],
     include_package_data=True,
     install_requires=[

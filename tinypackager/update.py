@@ -72,7 +72,7 @@ class PackageUpdate:
             print "Error: version %s not found for %s-%s: %s" % (version, project, name, ", ".join(versions["%s-%s" % (project, name)]))
             exit(1)
 
-        old_meta_path = os.path.join(".tinylima", self.root, "%s-%s" % (project, name), "package.yaml")
+        old_meta_path = os.path.join(".tinylima", self.root, "%s-%s" % (project, name), "package.yml")
         if os.path.exists(old_meta_path):
             old_meta = read_yaml(old_meta_path)
         else:
@@ -138,10 +138,10 @@ class PackageUpdate:
         self.remove(basic_name)
         mkdirsafe('.tinylima/%s/%s' % (self.root, basic_name))
 
-        install_log = open('.tinylima/%s/%s/installed.yaml' % (self.root, basic_name), 'w')
+        install_log = open('.tinylima/%s/%s/installed.yml' % (self.root, basic_name), 'w')
 
-        files_to_install = read_yaml(os.path.join(unpacked_path, 'files.yaml'))
-        package_yaml = read_yaml(os.path.join(unpacked_path, 'package.yaml'))
+        files_to_install = read_yaml(os.path.join(unpacked_path, 'files.yml'))
+        package_yaml = read_yaml(os.path.join(unpacked_path, 'package.yml'))
         package_yaml.update(self.flags)
 
         destinations = {}
@@ -181,8 +181,8 @@ class PackageUpdate:
                     install_log.write("- '%s'\n" % os.path.join(path_to_install, file))
                 os.chdir(pwd)
 
-        shutil.copyfile(os.path.join(unpacked_path, 'files.yaml'), '.tinylima/%s/%s/files.yaml' % (self.root, basic_name))
-        with open('.tinylima/%s/%s/package.yaml' % (self.root, basic_name), 'w') as f:
+        shutil.copyfile(os.path.join(unpacked_path, 'files.yml'), '.tinylima/%s/%s/files.yml' % (self.root, basic_name))
+        with open('.tinylima/%s/%s/package.yml' % (self.root, basic_name), 'w') as f:
             yaml.dump(package_yaml, f, default_flow_style=False)
 
         install_log.close()   
@@ -191,7 +191,7 @@ class PackageUpdate:
     def remove(self, package):
         level = os.path.abspath(os.getcwd())
         try:
-            for file in read_yaml('.tinylima/%s/%s/installed.yaml' % (self.root, package)):
+            for file in read_yaml('.tinylima/%s/%s/installed.yml' % (self.root, package)):
                 try:
                     if os.path.abspath(file).startswith(level):
                         print '  Removing %s' % file

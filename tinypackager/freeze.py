@@ -8,7 +8,7 @@ class PackageFreeze():
         if root_path:
             os.chdir(root_path)
             for installed in glob.glob('.tinylima/%s/*' % root):
-                data = read_yaml(os.path.join(installed, 'package.yaml'))
+                data = read_yaml(os.path.join(installed, 'package.yml'))
                 print "%s-%s: %s" % (data['project'], data['name'], data['version'])
         else:
             print "Error: %s not found" % root
