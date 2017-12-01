@@ -89,7 +89,10 @@ class PackageCreate:
             sections = [(proto_section, './')] if len(root_keys) == 0 else []
 
             for root_key, root_options, root_value in root_keys:
-                sections.append(("%s %s" % (proto_section, root_options), root_value))
+                if root_options:
+                    sections.append(("%s %s" % (proto_section, root_options), root_value))
+                else:
+                    sections.append((proto_section, root_value))
 
 
             for section, base_path in sections:
