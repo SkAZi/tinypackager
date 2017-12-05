@@ -4,11 +4,11 @@ from create import PackageCreate
 from update import PackageUpdate
 from freeze import PackageFreeze
 from utils import read_yaml_exit, deepmerge
+from __init__ import __version__
 
 # TODO: remove folders if empty
 # TODO: local packages storage
 
-__version__ = '0.3.21'
 
 def show_version():
     print "tinypackager v.%s" % __version__

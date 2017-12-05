@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from setuptools import setup
-from tinypackager.main import __version__
+from tinypackager import __version__
 
 setup(
     name='tinypackager',
