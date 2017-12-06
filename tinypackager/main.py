@@ -22,8 +22,8 @@ def cli():
 @click.argument('packages', nargs=-1)
 @click.option('--root', '-r', default="root.yml", help='Root file name.')
 @click.option('--bucket', envvar='TINYLIMA_BUCKET', default="tinylima-assets", help='AWS bucket name.')
-@click.option('--access_key', envvar='S3_ACCESS_KEY', default=None, help='Access key.')
-@click.option('--secret_key', envvar='S3_SECRET_KEY', default=None, help='Secret key.')
+@click.option('--access_key', envvar='S3_ACCESS_KEY', default=None, help='Access key (env S3_ACCESS_KEY).')
+@click.option('--secret_key', envvar='S3_SECRET_KEY', default=None, help='Secret key (env S3_SECRET_KEY).')
 @click.option('--bump_version', '-b', is_flag=True, help='Auto increment version number.')
 @click.option('--file', '-f',  is_flag=True, help='Read list of packages from file.')
 def create(packages, root, bucket, access_key, secret_key, bump_version, file):
@@ -35,7 +35,7 @@ def create(packages, root, bucket, access_key, secret_key, bump_version, file):
         if len(packages) == 0: packages = ('package.yml',)
         for package in packages:
             folder, file = os.path.split(package)
-            os.chdir(folder)
+            if folder: os.chdir(folder)
             PackageCreate(root, file, bucket=bucket, access_key=access_key, 
                 secret_key=secret_key, bump_version=bump_version, dest_path=pwd)
             os.chdir(pwd)
@@ -43,11 +43,11 @@ def create(packages, root, bucket, access_key, secret_key, bump_version, file):
     else:
         for package_list in packages:
             folder, file = os.path.split(package_list)
-            os.chdir(folder)
+            if folder: os.chdir(folder)
             pwd = os.getcwd()
             for package in read_yaml_exit(file).get('create', []):
                 folder, file = os.path.split(package)
-                os.chdir(folder)
+                if folder: os.chdir(folder)
                 PackageCreate(root, file, bucket=bucket, access_key=access_key, 
                     secret_key=secret_key, bump_version=bump_version, dest_path=backpwd)
                 os.chdir(pwd)
@@ -59,8 +59,8 @@ def create(packages, root, bucket, access_key, secret_key, bump_version, file):
 @click.argument('flags', nargs=-1)
 @click.option('--root', '-r', default="root.yml", help='Root file name.')
 @click.option('--bucket', envvar='TINYLIMA_BUCKET', default="tinylima-assets", help='AWS bucket name.')
-@click.option('--access_key', envvar='S3_ACCESS_KEY', default=None, help='Access key.')
-@click.option('--secret_key', envvar='S3_SECRET_KEY', default=None, help='Secret key.')
+@click.option('--access_key', envvar='S3_ACCESS_KEY', default=None, help='Access key (env S3_ACCESS_KEY).')
+@click.option('--secret_key', envvar='S3_SECRET_KEY', default=None, help='Secret key (env S3_SECRET_KEY).')
 def update(flags, root, bucket, access_key, secret_key):
     show_version()
     args = {}
@@ -73,7 +73,7 @@ def update(flags, root, bucket, access_key, secret_key):
 
     folder, file = os.path.split(root)
     pwd = os.getcwd()
-    os.chdir(folder)
+    if folder: os.chdir(folder)
     PackageUpdate(file, args, bucket, access_key, secret_key)
     os.chdir(pwd)
 
@@ -83,7 +83,7 @@ def freeze(root):
     show_version()
     folder, file = os.path.split(root)
     pwd = os.getcwd()
-    os.chdir(folder)
+    if folder: os.chdir(folder)
     PackageFreeze(file)
     os.chdir(pwd)
 
